@@ -41,7 +41,13 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     #Local
-    'quran',
+
+    'quran_books',
+    'quran_uz',
+    'quran_arabic',
+    'quran_ru',
+    'quran_eng',
+
 ]
 
 MIDDLEWARE = [

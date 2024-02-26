@@ -23,7 +23,8 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/login/uz/', include('rest_framework.urls')),
-    path('quran/', include('quran.urls')),
+    path('api/v2/', include('quran_uz.urls'))
+
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
