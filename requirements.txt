@@ -8,4 +8,4 @@ django-jazzmin
 django-jet-reboot
 google-api-python-client
 FeedParser
-pillow
+Pillow
