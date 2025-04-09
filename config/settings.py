@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-d4e((1#zgzppez^_n!ctzph-k78xq0_pf+_d1qmk$am#0lbq@_
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS = ['https://quranapi-mabx.onrender.com']
 
 
 
