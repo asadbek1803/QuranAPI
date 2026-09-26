@@ -118,8 +118,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # 3rd party
-    'cloudinary_storage',
-    'cloudinary',
+    'storages',
     'rest_framework',
     'rest_framework.authtoken',
     'import_export',
@@ -288,27 +287,33 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ─────────────────────────────────────────────
-# Cloudinary (Media fayllar uchun bulutli xotira)
+# Backblaze B2 / AWS S3 (Media fayllar uchun bulutli xotira)
 # ─────────────────────────────────────────────
 import os
-if os.getenv('CLOUDINARY_CLOUD_NAME'):
-    CLOUDINARY_STORAGE = {
-        'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
-        'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
-        'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
-    }
-    
-    # Django 4.2+ da fayl xotiralarini belgilash
+
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
+AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-005')
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = 'public-read'
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+AWS_LOCATION = 'media' # barcha fayllar media/ papkasiga tushadi
+
+if AWS_ACCESS_KEY_ID and AWS_STORAGE_BUCKET_NAME:
     STORAGES = {
         "default": {
-            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
         },
         "staticfiles": {
             "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
         },
     }
 else:
-    # Lokal holat uchun (agar Cloudinary hali ulanmagan bo'lsa)
+    # Lokal holat uchun 
     STORAGES = {
         "default": {
             "BACKEND": "django.core.files.storage.FileSystemStorage",
