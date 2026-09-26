@@ -296,8 +296,8 @@ AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
 AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-005')
-AWS_S3_FILE_OVERWRITE = False
-AWS_DEFAULT_ACL = None  # B2 uchun None bo'lishi kerak, aks holda 403 xatolik beradi
+AWS_S3_FILE_OVERWRITE = True  # B2 da HeadObject (403) xatosini aylanib o'tish uchun True qilinadi
+AWS_DEFAULT_ACL = None
 AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400',
 }
