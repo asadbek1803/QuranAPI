@@ -250,7 +250,7 @@ SPECTACULAR_SETTINGS = {
 # ─────────────────────────────────────────────
 # Import-Export (Excel)
 # ─────────────────────────────────────────────
-IMPORT_EXPORT_USE_TRANSACTIONS = True
+IMPORT_EXPORT_USE_TRANSACTIONS = False
 IMPORT_EXPORT_SKIP_ADMIN_LOG = False
 
 
