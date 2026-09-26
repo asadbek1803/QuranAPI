@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quran API v3 — Bepul Ochiq API</title>
+  <meta name="description" content="Qur'on oyatlari, suralari va tarjimalarini o'zbek, arab, rus va ingliz tillarida olish uchun bepul API." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root {
+      --green:     #10b981;
+      --green-dark:#059669;
+      --green-glow:rgba(16,185,129,.18);
+      --blue:      #3b82f6;
+      --purple:    #8b5cf6;
+      --gold:      #f59e0b;
+      --bg:        #0a0f1e;
+      --bg2:       #0f1729;
+      --bg3:       #111827;
+      --card:      #141d2f;
+      --border:    rgba(255,255,255,.07);
+      --text:      #e2e8f0;
+      --muted:     #64748b;
+      --radius:    14px;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      font-family:'Inter',sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.6;
+      overflow-x:hidden;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar{width:5px}
+    ::-webkit-scrollbar-track{background:var(--bg)}
+    ::-webkit-scrollbar-thumb{background:var(--green-dark);border-radius:9px}
+
+    /* ── NAV ── */
+    nav{
+      position:fixed;top:0;left:0;right:0;z-index:100;
+      backdrop-filter:blur(16px);
+      background:rgba(10,15,30,.85);
+      border-bottom:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 2rem;height:62px;
+    }
+    .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.1rem;color:#fff}
+    .logo-icon{
+      width:36px;height:36px;border-radius:10px;
+      background:linear-gradient(135deg,var(--green),var(--blue));
+      display:flex;align-items:center;justify-content:center;font-size:1.1rem;
+    }
+    .nav-links{display:flex;gap:2rem;list-style:none}
+    .nav-links a{color:var(--muted);text-decoration:none;font-size:.875rem;font-weight:500;transition:.2s}
+    .nav-links a:hover{color:var(--green)}
+    .nav-btn{
+      padding:.45rem 1.1rem;border-radius:8px;font-size:.85rem;font-weight:600;
+      background:var(--green);color:#fff;border:none;cursor:pointer;text-decoration:none;
+      transition:.2s;
+    }
+    .nav-btn:hover{background:var(--green-dark)}
+
+    /* ── HERO ── */
+    .hero{
+      min-height:100vh;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      text-align:center;padding:7rem 1.5rem 4rem;
+      position:relative;overflow:hidden;
+    }
+    .hero::before{
+      content:'';position:absolute;inset:0;
+      background:
+        radial-gradient(ellipse 60% 50% at 50% 0%,rgba(16,185,129,.12),transparent),
+        radial-gradient(ellipse 40% 40% at 80% 60%,rgba(59,130,246,.08),transparent);
+    }
+    .hero-badge{
+      display:inline-flex;align-items:center;gap:8px;
+      background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);
+      border-radius:50px;padding:.35rem 1rem;font-size:.8rem;font-weight:600;
+      color:var(--green);margin-bottom:1.6rem;letter-spacing:.04em;
+    }
+    .hero-badge span{
+      width:6px;height:6px;background:var(--green);border-radius:50%;
+      animation:pulse 2s infinite;
+    }
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+    h1{
+      font-size:clamp(2.4rem,6vw,4rem);font-weight:800;line-height:1.15;
+      margin-bottom:1.2rem;letter-spacing:-.02em;
+    }
+    h1 .grad{
+      background:linear-gradient(135deg,var(--green) 0%,#34d399 40%,var(--blue) 100%);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    }
+    .hero-desc{
+      font-size:1.05rem;color:var(--muted);max-width:580px;margin:0 auto 2.5rem;
+      line-height:1.75;
+    }
+    .hero-btns{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-bottom:3rem}
+    .btn{
+      display:inline-flex;align-items:center;gap:.5rem;padding:.7rem 1.6rem;
+      border-radius:10px;font-size:.9rem;font-weight:600;text-decoration:none;
+      transition:.25s;cursor:pointer;border:none;
+    }
+    .btn-primary{background:var(--green);color:#fff}
+    .btn-primary:hover{background:var(--green-dark);transform:translateY(-1px)}
+    .btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
+    .btn-outline:hover{border-color:var(--green);color:var(--green)}
+
+    /* ── URL preview ── */
+    .url-preview{
+      background:var(--card);border:1px solid var(--border);border-radius:12px;
+      padding:.7rem 1.2rem;font-family:'JetBrains Mono',monospace;font-size:.82rem;
+      color:var(--muted);display:inline-flex;align-items:center;gap:.8rem;
+      max-width:100%;overflow:auto;
+    }
+    .url-preview .method{
+      background:rgba(16,185,129,.15);color:var(--green);padding:.2rem .5rem;
+      border-radius:5px;font-weight:600;font-size:.78rem;flex-shrink:0;
+    }
+    .url-preview span{color:#93c5fd}
+
+    /* ── STATS ── */
+    .stats{
+      display:flex;gap:2rem;flex-wrap:wrap;justify-content:center;
+      padding:2rem 1.5rem;border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+    }
+    .stat{text-align:center}
+    .stat-num{font-size:2rem;font-weight:800;color:var(--green)}
+    .stat-label{font-size:.8rem;color:var(--muted);margin-top:.1rem}
+
+    /* ── SECTION ── */
+    section{padding:5rem 1.5rem}
+    .container{max-width:1060px;margin:0 auto}
+    .section-title{
+      font-size:1.8rem;font-weight:700;margin-bottom:.5rem;letter-spacing:-.01em;
+    }
+    .section-sub{color:var(--muted);margin-bottom:2.5rem;font-size:.95rem}
+
+    /* ── ENDPOINT CARDS ── */
+    .endpoints{display:flex;flex-direction:column;gap:.75rem}
+    .ep-group{margin-bottom:2rem}
+    .ep-group-title{
+      font-size:.75rem;font-weight:700;letter-spacing:.1em;color:var(--muted);
+      text-transform:uppercase;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem;
+    }
+    .ep-group-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+    .ep-card{
+      background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+      padding:1rem 1.25rem;display:flex;align-items:flex-start;gap:1rem;
+      transition:.2s;cursor:default;
+    }
+    .ep-card:hover{border-color:rgba(16,185,129,.3);background:#182235}
+
+    .method-badge{
+      padding:.28rem .65rem;border-radius:7px;font-family:'JetBrains Mono',monospace;
+      font-size:.75rem;font-weight:700;flex-shrink:0;margin-top:.1rem;min-width:48px;text-align:center;
+    }
+    .get {background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.25)}
+    .post{background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.25)}
+
+    .ep-info{flex:1}
+    .ep-path{
+      font-family:'JetBrains Mono',monospace;font-size:.875rem;color:#e2e8f0;
+      margin-bottom:.25rem;
+    }
+    .ep-path .param{color:#f59e0b}
+    .ep-desc{font-size:.82rem;color:var(--muted)}
+
+    .ep-tags{display:flex;gap:.4rem;margin-top:.4rem;flex-wrap:wrap}
+    .tag{
+      font-size:.7rem;padding:.15rem .5rem;border-radius:5px;font-weight:500;
+      background:rgba(255,255,255,.06);color:var(--muted);
+    }
+
+    /* ── CODE BLOCK ── */
+    .code-block{
+      background:#0d1117;border:1px solid var(--border);border-radius:var(--radius);
+      overflow:hidden;margin-top:1.5rem;
+    }
+    .code-header{
+      background:#161b27;padding:.6rem 1rem;display:flex;align-items:center;
+      justify-content:space-between;border-bottom:1px solid var(--border);
+    }
+    .code-title{font-size:.78rem;color:var(--muted);font-family:'JetBrains Mono',monospace}
+    .code-copy{
+      font-size:.72rem;color:var(--muted);background:none;border:1px solid var(--border);
+      padding:.25rem .6rem;border-radius:5px;cursor:pointer;transition:.2s;
+    }
+    .code-copy:hover{color:var(--green);border-color:var(--green)}
+    pre{padding:1.2rem;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.65}
+    .kw{color:#ff79c6}
+    .str{color:#f1fa8c}
+    .num{color:#bd93f9}
+    .key{color:#8be9fd}
+    .val{color:#50fa7b}
+    .cm{color:#6272a4}
+
+    /* ── FEATURES ── */
+    .features-grid{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.25rem;
+    }
+    .feature-card{
+      background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+      padding:1.5rem;transition:.2s;
+    }
+    .feature-card:hover{border-color:rgba(16,185,129,.3);transform:translateY(-2px)}
+    .feature-icon{
+      width:44px;height:44px;border-radius:11px;display:flex;align-items:center;
+      justify-content:center;font-size:1.2rem;margin-bottom:1rem;
+    }
+    .feature-card h3{font-size:1rem;font-weight:600;margin-bottom:.4rem}
+    .feature-card p{font-size:.83rem;color:var(--muted);line-height:1.6}
+
+    /* ── LANGS ── */
+    .langs-grid{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;
+    }
+    .lang-card{
+      background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+      padding:1.2rem 1.4rem;display:flex;align-items:center;gap:1rem;
+      transition:.2s;
+    }
+    .lang-card:hover{border-color:rgba(16,185,129,.25)}
+    .lang-flag{font-size:2rem}
+    .lang-name{font-weight:600;font-size:.95rem}
+    .lang-key{font-size:.75rem;color:var(--muted);font-family:'JetBrains Mono',monospace}
+
+    /* ── FILTER PARAMS ── */
+    .params-table{width:100%;border-collapse:collapse;font-size:.85rem}
+    .params-table th{
+      text-align:left;padding:.65rem 1rem;font-size:.75rem;text-transform:uppercase;
+      letter-spacing:.06em;color:var(--muted);font-weight:600;
+      border-bottom:1px solid var(--border);
+    }
+    .params-table td{padding:.75rem 1rem;border-bottom:1px solid rgba(255,255,255,.04)}
+    .params-table tr:last-child td{border:none}
+    .params-table tr:hover td{background:rgba(255,255,255,.02)}
+    .param-name{font-family:'JetBrains Mono',monospace;color:#93c5fd;font-size:.82rem}
+    .param-type{
+      font-family:'JetBrains Mono',monospace;font-size:.75rem;
+      color:var(--gold);background:rgba(245,158,11,.1);
+      padding:.15rem .45rem;border-radius:4px;
+    }
+
+    /* ── CONTACT ── */
+    .contact-grid{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;
+    }
+    .contact-card{
+      background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+      padding:1.5rem;text-align:center;text-decoration:none;color:var(--text);
+      transition:.25s;display:block;
+    }
+    .contact-card:hover{transform:translateY(-3px)}
+    .contact-card.tg:hover{border-color:#29a9eb}
+    .contact-card.ig:hover{border-color:#e1306c}
+    .contact-card.em:hover{border-color:var(--green)}
+    .contact-card.coffee:hover{border-color:#ffdd00}
+    .contact-icon{font-size:2rem;margin-bottom:.6rem}
+    .contact-label{font-size:.75rem;color:var(--muted);margin-bottom:.2rem}
+    .contact-value{font-weight:600;font-size:.9rem}
+
+    /* ── DONATE ── */
+    .donate-box{
+      background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(59,130,246,.08));
+      border:1px solid rgba(16,185,129,.2);border-radius:var(--radius);
+      padding:2.5rem;text-align:center;
+    }
+    .donate-box h3{font-size:1.4rem;font-weight:700;margin-bottom:.6rem}
+    .donate-box p{color:var(--muted);margin-bottom:1.5rem;max-width:500px;margin-left:auto;margin-right:auto}
+    .coffee-btn{
+      display:inline-flex;align-items:center;gap:.6rem;
+      background:#ffdd00;color:#000;padding:.75rem 1.8rem;border-radius:10px;
+      font-weight:700;text-decoration:none;font-size:.95rem;transition:.2s;
+    }
+    .coffee-btn:hover{background:#f5d000;transform:translateY(-2px)}
+
+    /* ── FOOTER ── */
+    footer{
+      border-top:1px solid var(--border);padding:2rem 1.5rem;text-align:center;
+      color:var(--muted);font-size:.83rem;
+    }
+    footer strong{color:var(--green)}
+
+    /* ── MOBILE ── */
+    @media(max-width:640px){
+      nav .nav-links{display:none}
+      h1{font-size:2rem}
+      .stats{gap:1.2rem}
+    }
+
+    /* ── TABS ── */
+    .tabs{display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap}
+    .tab{
+      padding:.45rem 1rem;border-radius:8px;font-size:.82rem;font-weight:600;
+      border:1px solid var(--border);cursor:pointer;background:none;color:var(--muted);
+      transition:.2s;
+    }
+    .tab.active,.tab:hover{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3);color:var(--green)}
+    .tab-panel{display:none}
+    .tab-panel.active{display:block}
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════ NAV ═══════════════════ -->
+<nav>
+  <div class="logo">
+    <div class="logo-icon">🕌</div>
+    Quran API
+  </div>
+  <ul class="nav-links">
+    <li><a href="#endpoints">Endpoints</a></li>
+    <li><a href="#filters">Filterlar</a></li>
+    <li><a href="#languages">Tillar</a></li>
+    <li><a href="#contact">Aloqa</a></li>
+  </ul>
+  <a href="/api/v3/schema/swagger-ui/" class="nav-btn" target="_blank">
+    <i class="fas fa-book"></i> Swagger
+  </a>
+</nav>
+
+<!-- ═══════════════════ HERO ═══════════════════ -->
+<header class="hero">
+  <div class="hero-badge">
+    <span></span> v3.0 — Yangi versiya chiqdi
+  </div>
+  <h1>
+    <span class="grad">Qur'on API</span><br />
+    — Bepul & Ochiq
+  </h1>
+  <p class="hero-desc">
+    Qur'oni Karimning barcha suralaridagi oyatlarini <strong>4 tilda</strong> — 
+    o'zbek, arab, rus va inglizcha — audio va tarjimalar bilan olish uchun 
+    <strong>bepul REST API</strong>.
+  </p>
+  <div class="hero-btns">
+    <a href="#endpoints" class="btn btn-primary">
+      <i class="fas fa-map"></i> API Xaritasi
+    </a>
+    <a href="/api/v3/schema/swagger-ui/" class="btn btn-outline" target="_blank">
+      <i class="fas fa-external-link-alt"></i> Swagger UI
+    </a>
+    <a href="/api/v3/suras/" class="btn btn-outline" target="_blank">
+      <i class="fas fa-play"></i> Sinab ko'rish
+    </a>
+  </div>
+  <div class="url-preview">
+    <span class="method">GET</span>
+    <span>https://quranapi.onrender.com<span style="color:#e2e8f0">/api/v3/suras/</span><span style="color:var(--gold)">?number=1</span></span>
+  </div>
+</header>
+
+<!-- ═══════════════════ STATS ═══════════════════ -->
+<div class="stats">
+  <div class="stat"><div class="stat-num">114</div><div class="stat-label">Sura</div></div>
+  <div class="stat"><div class="stat-num">6,236</div><div class="stat-label">Oyat</div></div>
+  <div class="stat"><div class="stat-num">4</div><div class="stat-label">Til</div></div>
+  <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Bepul</div></div>
+  <div class="stat"><div class="stat-num">REST</div><div class="stat-label">API turi</div></div>
+</div>
+
+<!-- ═══════════════════ FEATURES ═══════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-title">✨ Xususiyatlar</div>
+    <div class="section-sub">Bu API nima beradi?</div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(16,185,129,.12);color:var(--green)">
+          <i class="fas fa-bolt"></i>
+        </div>
+        <h3>Tezkor</h3>
+        <p>15 daqiqalik cache, optimallashtirilgan so'rovlar va indekslangan bazani ta'minlaydi.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(59,130,246,.12);color:#60a5fa">
+          <i class="fas fa-language"></i>
+        </div>
+        <h3>Ko'p tilli</h3>
+        <p>Har bir oyat 4 tilda: arabcha asl matn, o'zbekcha, ruscha va inglizcha tarjimalar.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(139,92,246,.12);color:#a78bfa">
+          <i class="fas fa-filter"></i>
+        </div>
+        <h3>Filter & Qidiruv</h3>
+        <p>Sura raqami, nozil bo'lgan joy, matn bo'yicha qidirish imkoniyatlari.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(245,158,11,.12);color:var(--gold)">
+          <i class="fas fa-headphones"></i>
+        </div>
+        <h3>Audio</h3>
+        <p>Arabcha qiroat audiolari va o'zbekcha ovozli tarjima fayllari.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(16,185,129,.12);color:var(--green)">
+          <i class="fas fa-book-open"></i>
+        </div>
+        <h3>PDF Kitoblar</h3>
+        <p>Qur'on PDF kitoblari barcha tillarda yuklab olish uchun.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(239,68,68,.12);color:#f87171">
+          <i class="fas fa-infinity"></i>
+        </div>
+        <h3>Limit yo'q</h3>
+        <p>Rate limit yo'q. Har qanday loyihangizda erkin foydalaning.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ ENDPOINTS ═══════════════════ -->
+<section id="endpoints" style="background:var(--bg2)">
+  <div class="container">
+    <div class="section-title">🗺️ API Xaritasi</div>
+    <div class="section-sub">Barcha mavjud endpoint'lar</div>
+
+    <!-- Suralar -->
+    <div class="ep-group">
+      <div class="ep-group-title"><i class="fas fa-book-quran"></i> Suralar</div>
+      <div class="endpoints">
+
+        <div class="ep-card">
+          <span class="method-badge get">GET</span>
+          <div class="ep-info">
+            <div class="ep-path">/api/v3/suras/</div>
+            <div class="ep-desc">Barcha 114 suralar ro'yxati (qisqacha, oyatlarsiz)</div>
+            <div class="ep-tags">
+              <span class="tag">Pagination</span>
+              <span class="tag">Filter</span>
+              <span class="tag">Search</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ep-card">
+          <span class="method-badge get">GET</span>
+          <div class="ep-info">
+            <div class="ep-path">/api/v3/suras/<span class="param">{number}</span>/</div>
+            <div class="ep-desc">Bitta suraning barcha oyatlari va to'liq ma'lumoti</div>
+            <div class="ep-tags">
+              <span class="tag">4 tilda oyatlar</span>
+              <span class="tag">Audio</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Oyatlar -->
+    <div class="ep-group">
+      <div class="ep-group-title"><i class="fas fa-align-left"></i> Oyatlar</div>
+      <div class="endpoints">
+
+        <div class="ep-card">
+          <span class="method-badge get">GET</span>
+          <div class="ep-info">
+            <div class="ep-path">/api/v3/ayahs/</div>
+            <div class="ep-desc">Barcha oyatlar ro'yxati — qidirish va filter bilan</div>
+            <div class="ep-tags">
+              <span class="tag">Matn qidiruv</span>
+              <span class="tag">Sura filter</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ep-card">
+          <span class="method-badge get">GET</span>
+          <div class="ep-info">
+            <div class="ep-path">/api/v3/suras/<span class="param">{sura}</span>/ayahs/<span class="param">{oyat}</span>/</div>
+            <div class="ep-desc">Aniq sura va oyat raqami bo'yicha bitta oyat</div>
+            <div class="ep-tags">
+              <span class="tag">4 tilda matn</span>
+              <span class="tag">Audio</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Mualliflar -->
+    <div class="ep-group">
+      <div class="ep-group-title"><i class="fas fa-user-tie"></i> Mualliflar / Tarjimonlar</div>
+      <div class="endpoints">
+        <div class="ep-card">
+          <span class="method-badge get">GET</span>
+          <div class="ep-info">
+            <div class="ep-path">/api/v3/authors/</div>
+            <div class="ep-desc">Barcha tarjimonlar va qorilar ro'yxati</div>
+            <div class="ep-tags">
+              <span class="tag">Til filter</span>
+              <span class="tag">Qidiruv</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kitoblar -->
+    <div class="ep-group">
+      <div class="ep-group-title"><i class="fas fa-file-pdf"></i> PDF Kitoblar</div>
+      <div class="endpoints">
+        <div class="ep-card">
+          <span class="method-badge get">GET</span>
+          <div class="ep-info">
+            <div class="ep-path">/api/v3/books/</div>
+            <div class="ep-desc">Qur'on PDF kitoblari barcha tillarda</div>
+            <div class="ep-tags">
+              <span class="tag">Til filter</span>
+              <span class="tag">Online o'qish</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Schema -->
+    <div class="ep-group">
+      <div class="ep-group-title"><i class="fas fa-code"></i> Dokumentatsiya</div>
+      <div class="endpoints">
+        <div class="ep-card">
+          <span class="method-badge get">GET</span>
+          <div class="ep-info">
+            <div class="ep-path">/api/v3/schema/swagger-ui/</div>
+            <div class="ep-desc">Interaktiv Swagger UI — barcha endpoint'larni brauzerdan sinab ko'rish</div>
+          </div>
+        </div>
+        <div class="ep-card">
+          <span class="method-badge get">GET</span>
+          <div class="ep-info">
+            <div class="ep-path">/api/v3/schema/redoc/</div>
+            <div class="ep-desc">ReDoc formatlangan API hujjatlar</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════ RESPONSE EXAMPLE ═══════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-title">💡 Javob namunalari</div>
+    <div class="section-sub">API qaytaradigan JSON formatlar</div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('sura')">Sura</button>
+      <button class="tab" onclick="showTab('ayah')">Oyat</button>
+      <button class="tab" onclick="showTab('authors')">Mualliflar</button>
+      <button class="tab" onclick="showTab('books')">Kitoblar</button>
+    </div>
+
+    <div id="tab-sura" class="tab-panel active">
+      <div class="url-preview" style="margin-bottom:.75rem">
+        <span class="method">GET</span>
+        <span>/api/v3/suras/1/</span>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-title">response.json</span>
+          <button class="code-copy" onclick="copyCode('code-sura')">📋 Nusxa</button>
+        </div>
+        <pre id="code-sura"><span class="cm">// Al-Fotiha surasi to'liq javob</span>
+{
+  <span class="key">"id"</span>: <span class="num">1</span>,
+  <span class="key">"number"</span>: <span class="num">1</span>,
+  <span class="key">"name_arabic"</span>: <span class="str">"الفاتحة"</span>,
+  <span class="key">"name_uzbek"</span>: <span class="str">"Fotiha"</span>,
+  <span class="key">"name_english"</span>: <span class="str">"The Opening"</span>,
+  <span class="key">"name_russian"</span>: <span class="str">"Открывающая"</span>,
+  <span class="key">"total_ayahs"</span>: <span class="num">7</span>,
+  <span class="key">"revelation_place"</span>: <span class="str">"Makka"</span>,
+  <span class="key">"ayahs"</span>: [
+    {
+      <span class="key">"id"</span>: <span class="num">1</span>,
+      <span class="key">"number"</span>: <span class="num">1</span>,
+      <span class="key">"text_arabic"</span>: <span class="str">"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"</span>,
+      <span class="key">"text_uzbek"</span>: <span class="str">"Mehribon va Rahmli Alloh nomi bilan"</span>,
+      <span class="key">"text_russian"</span>: <span class="str">"Во имя Аллаха, Милостивого, Милосердного"</span>,
+      <span class="key">"text_english"</span>: <span class="str">"In the name of Allah, the Entirely Merciful..."</span>,
+      <span class="key">"audio_arabic"</span>: <span class="str">"/media/quran/audio/arabic/1_1.mp3"</span>,
+      <span class="key">"audio_uzbek"</span>: <span class="str">"/media/quran/audio/uzbek/1_1.mp3"</span>,
+      <span class="key">"author_name"</span>: <span class="str">"Alouddin Mansur"</span>
+    }
+  ]
+}</pre>
+      </div>
+    </div>
+
+    <div id="tab-ayah" class="tab-panel">
+      <div class="url-preview" style="margin-bottom:.75rem">
+        <span class="method">GET</span>
+        <span>/api/v3/suras/1/ayahs/1/</span>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-title">response.json</span>
+          <button class="code-copy" onclick="copyCode('code-ayah')">📋 Nusxa</button>
+        </div>
+        <pre id="code-ayah">{
+  <span class="key">"id"</span>: <span class="num">1</span>,
+  <span class="key">"number"</span>: <span class="num">1</span>,
+  <span class="key">"text_arabic"</span>: <span class="str">"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"</span>,
+  <span class="key">"text_uzbek"</span>: <span class="str">"Mehribon va Rahmli Alloh nomi bilan"</span>,
+  <span class="key">"text_russian"</span>: <span class="str">"Во имя Аллаха, Милостивого, Милосердного"</span>,
+  <span class="key">"text_english"</span>: <span class="str">"In the name of Allah, the Entirely Merciful, the Especially Merciful"</span>,
+  <span class="key">"audio_arabic"</span>: <span class="str">"/media/quran/audio/arabic/1_1.mp3"</span>,
+  <span class="key">"audio_uzbek"</span>: <span class="str">"/media/quran/audio/uzbek/1_1.mp3"</span>,
+  <span class="key">"author_name"</span>: <span class="str">"Alouddin Mansur"</span>
+}</pre>
+      </div>
+    </div>
+
+    <div id="tab-authors" class="tab-panel">
+      <div class="url-preview" style="margin-bottom:.75rem">
+        <span class="method">GET</span>
+        <span>/api/v3/authors/?language=uz</span>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-title">response.json</span>
+          <button class="code-copy" onclick="copyCode('code-auth')">📋 Nusxa</button>
+        </div>
+        <pre id="code-auth">{
+  <span class="key">"count"</span>: <span class="num">3</span>,
+  <span class="key">"next"</span>: <span class="kw">null</span>,
+  <span class="key">"previous"</span>: <span class="kw">null</span>,
+  <span class="key">"results"</span>: [
+    {
+      <span class="key">"id"</span>: <span class="num">1</span>,
+      <span class="key">"full_name"</span>: <span class="str">"Alouddin Mansur"</span>,
+      <span class="key">"language"</span>: <span class="str">"uz"</span>,
+      <span class="key">"language_display"</span>: <span class="str">"O'zbekcha"</span>,
+      <span class="key">"birth_year"</span>: <span class="str">"1936"</span>,
+      <span class="key">"about"</span>: <span class="str">"O'zbek tilida Qur'on tarjimoni..."</span>,
+      <span class="key">"profile_image"</span>: <span class="str">"/media/quran/authors/mansur.jpg"</span>
+    }
+  ]
+}</pre>
+      </div>
+    </div>
+
+    <div id="tab-books" class="tab-panel">
+      <div class="url-preview" style="margin-bottom:.75rem">
+        <span class="method">GET</span>
+        <span>/api/v3/books/?language=uz</span>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-title">response.json</span>
+          <button class="code-copy" onclick="copyCode('code-books')">📋 Nusxa</button>
+        </div>
+        <pre id="code-books">{
+  <span class="key">"count"</span>: <span class="num">1</span>,
+  <span class="key">"results"</span>: [
+    {
+      <span class="key">"id"</span>: <span class="num">1</span>,
+      <span class="key">"title"</span>: <span class="str">"Qur'on Karim O'zbekcha Tarjima"</span>,
+      <span class="key">"language"</span>: <span class="str">"uz"</span>,
+      <span class="key">"language_display"</span>: <span class="str">"O'zbekcha"</span>,
+      <span class="key">"pdf"</span>: <span class="str">"/media/quran/books/quran_uz.pdf"</span>,
+      <span class="key">"can_read_online"</span>: <span class="kw">true</span>,
+      <span class="key">"uploaded_at"</span>: <span class="str">"2024-01-01T00:00:00Z"</span>
+    }
+  ]
+}</pre>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════ FILTERS ═══════════════════ -->
+<section id="filters" style="background:var(--bg2)">
+  <div class="container">
+    <div class="section-title">🔍 Filter Parametrlari</div>
+    <div class="section-sub">Query parametrlari bilan ma'lumotlarni moslashtiring</div>
+
+    <div style="overflow-x:auto;background:var(--card);border:1px solid var(--border);border-radius:var(--radius)">
+      <table class="params-table">
+        <thead>
+          <tr>
+            <th>Endpoint</th>
+            <th>Parametr</th>
+            <th>Turi</th>
+            <th>Tavsif</th>
+            <th>Misol</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color:var(--muted);font-size:.8rem">/api/v3/suras/</td>
+            <td><span class="param-name">number</span></td>
+            <td><span class="param-type">integer</span></td>
+            <td>Sura raqami bo'yicha</td>
+            <td><span class="param-name">?number=1</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--muted);font-size:.8rem">/api/v3/suras/</td>
+            <td><span class="param-name">revelation_place</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>Nozil bo'lgan joy (Makka/Madina)</td>
+            <td><span class="param-name">?revelation_place=Makka</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--muted);font-size:.8rem">/api/v3/suras/</td>
+            <td><span class="param-name">name</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>Sura nomi bo'yicha qidirish (barcha tillarda)</td>
+            <td><span class="param-name">?name=fotiha</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--muted);font-size:.8rem">/api/v3/ayahs/</td>
+            <td><span class="param-name">sura</span></td>
+            <td><span class="param-type">integer</span></td>
+            <td>Sura ID bo'yicha filter</td>
+            <td><span class="param-name">?sura=1</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--muted);font-size:.8rem">/api/v3/ayahs/</td>
+            <td><span class="param-name">number</span></td>
+            <td><span class="param-type">integer</span></td>
+            <td>Oyat raqami</td>
+            <td><span class="param-name">?number=7</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--muted);font-size:.8rem">/api/v3/ayahs/</td>
+            <td><span class="param-name">search</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>Matn bo'yicha qidirish (4 tilda)</td>
+            <td><span class="param-name">?search=bismillah</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--muted);font-size:.8rem">/api/v3/authors/</td>
+            <td><span class="param-name">language</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>Til bo'yicha: uz, ar, ru, en</td>
+            <td><span class="param-name">?language=uz</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--muted);font-size:.8rem">/api/v3/books/</td>
+            <td><span class="param-name">language</span></td>
+            <td><span class="param-type">string</span></td>
+            <td>Til bo'yicha filter</td>
+            <td><span class="param-name">?language=ar</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--muted);font-size:.8rem">Barcha listlar</td>
+            <td><span class="param-name">page</span></td>
+            <td><span class="param-type">integer</span></td>
+            <td>Sahifa raqami (30 ta/sahifa)</td>
+            <td><span class="param-name">?page=2</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ LANGUAGES ═══════════════════ -->
+<section id="languages">
+  <div class="container">
+    <div class="section-title">🌍 Qo'llab-quvvatlanadigan tillar</div>
+    <div class="section-sub">Har bir oyat quyidagi tillarda mavjud</div>
+    <div class="langs-grid">
+      <div class="lang-card">
+        <div class="lang-flag">🇺🇿</div>
+        <div>
+          <div class="lang-name">O'zbekcha</div>
+          <div class="lang-key">language=uz | text_uzbek</div>
+        </div>
+      </div>
+      <div class="lang-card">
+        <div class="lang-flag">🇸🇦</div>
+        <div>
+          <div class="lang-name">Arabcha (Asl matn)</div>
+          <div class="lang-key">language=ar | text_arabic</div>
+        </div>
+      </div>
+      <div class="lang-card">
+        <div class="lang-flag">🇷🇺</div>
+        <div>
+          <div class="lang-name">Ruscha</div>
+          <div class="lang-key">language=ru | text_russian</div>
+        </div>
+      </div>
+      <div class="lang-card">
+        <div class="lang-flag">🇬🇧</div>
+        <div>
+          <div class="lang-name">Inglizcha</div>
+          <div class="lang-key">language=en | text_english</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ CONTACT ═══════════════════ -->
+<section id="contact" style="background:var(--bg2)">
+  <div class="container">
+    <div class="section-title">👤 Developer</div>
+    <div class="section-sub">Savollar yoki hamkorlik bo'yicha murojaat qiling</div>
+
+    <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem;flex-wrap:wrap">
+      <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0">👨‍💻</div>
+      <div>
+        <div style="font-size:1.3rem;font-weight:700">Asadbek Abdubannopov</div>
+        <div style="color:var(--muted);font-size:.9rem">Backend Developer · Django · DRF</div>
+      </div>
+    </div>
+
+    <div class="contact-grid">
+      <a href="https://t.me/asadbek_074" target="_blank" class="contact-card tg">
+        <div class="contact-icon">✈️</div>
+        <div class="contact-label">Telegram</div>
+        <div class="contact-value">@asadbek_dev</div>
+      </a>
+      <a href="https://instagram.com/asadbek_074" target="_blank" class="contact-card ig">
+        <div class="contact-icon">📸</div>
+        <div class="contact-label">Instagram</div>
+        <div class="contact-value">@asadbek.engineer</div>
+      </a>
+      <a href="mailto:asadbekoffical1202@gmail.com" class="contact-card em">
+        <div class="contact-icon">📧</div>
+        <div class="contact-label">Email</div>
+        <div class="contact-value">asadbekoffical1202@gmail.com</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ DONATE ═══════════════════ -->
+<section>
+  <div class="container">
+    <div class="donate-box">
+      <div style="font-size:2.5rem;margin-bottom:.5rem">☕</div>
+      <h3>APIni qo'llab-quvvatlang</h3>
+      <p>
+        Bu API bepul bo'lib, uni saqlash, server xarajatlari va yangi funksiyalar 
+        qo'shish uchun sizning yordamingiz zarur. Har qanday miqdordagi xayriya 
+        juda muhim!
+      </p>
+      <a href="https://www.buymeacoffee.com/asadbek_abdubannopov" target="_blank" class="coffee-btn">
+        ☕ Buy me a coffee
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ FOOTER ═══════════════════ -->
+<footer>
+  <p>
+    🕌 <strong>Quran API v3</strong> — Bepul va ochiq manba |
+    <a href="/api/v3/schema/swagger-ui/" style="color:var(--green);text-decoration:none">Swagger</a> ·
+    <a href="https://t.me/asadbek_dev" style="color:var(--green);text-decoration:none">Telegram</a> ·
+    <a href="mailto:asadbekoffical1202@gmail.com" style="color:var(--green);text-decoration:none">Email</a>
+  </p>
+  <p style="margin-top:.5rem">Made with ❤️ by Asadbek Abdubannopov</p>
+</footer>
+
+<script>
+  // ── Tab switching ──
+  function showTab(name) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  // ── Copy code ──
+  function copyCode(id) {
+    const el = document.getElementById(id);
+    const text = el.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = event.target;
+      btn.textContent = '✅ Nusxalandi';
+      setTimeout(() => btn.textContent = '📋 Nusxa', 2000);
+    });
+  }
+
+  // ── Scroll reveal ──
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = 1;
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.08 });
+
+  document.querySelectorAll('.ep-card, .feature-card, .lang-card, .contact-card').forEach(el => {
+    el.style.opacity = 0;
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity .4s ease, transform .4s ease';
+    obs.observe(el);
+  });
+</script>
+</body>
+</html>
